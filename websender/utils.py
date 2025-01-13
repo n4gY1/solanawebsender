@@ -1,6 +1,9 @@
+import base64
+import time
+
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from solders.keypair import Keypair
 
-import time
 import random
 
 import requests
@@ -8,9 +11,9 @@ import json
 import jwt
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import serialization
+
 import os
-from time import time
+
 import csv
 
 _key_name = "organizations/"
@@ -22,34 +25,33 @@ EURC_UUID = "f19fec83...."
 
 
 def get_account_uuid(key_name, key_secret,):
-    request_method = "POST"
-    url = "api.coinbase.com"
-    request_path = "/v2/accounts/"
-    jwt_payload = {
-        'iss': 'cdp',
-        'nbf': int(time()),
-        'exp': int(time()) + 120,
-        'sub': key_name,
-        'uri': request_method + " " + url + request_path
-    }
+    url = 'https://api.coinbase.com/v2/accounts'
+    timestamp = str(int(time.time()))
+    private_key = load_pem_private_key(key_secret.encode(), password=None)
+    # Kérés adatai
+    method = "GET"
+    request_path = "/v2/accounts"
+    body = ""  # GET kéréseknél nincs body
 
-    # Generáljunk egy nonce-t
-    nonce = os.urandom(16).hex()
+    # Üzenet generálása
+    message = f"{timestamp}{method}{request_path}{body}".encode()
 
-    # Generáljuk a JWT-t
-    jwt_token = jwt.encode(jwt_payload, key_secret, algorithm="ES256", headers={
-        "kid": key_name,
-        "nonce": nonce
-    })
-    print(jwt_token)
+    # Aláírás generálása
+    raw_signature = private_key.sign(message, ec.ECDSA(hashes.SHA256()))
+    signature = base64.b64encode(raw_signature).decode()
 
-    # Fejlécek
+    # Fejlécek összeállítása
     headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {jwt_token}"
+        'CB-ACCESS-KEY': key_name,
+        'CB-ACCESS-SIGN': signature,
+        'CB-ACCESS-TIMESTAMP': timestamp,
+        'Content-Type': 'application/json',
     }
-    response = requests.post(f"https://api.coinbase.com/v2/accounts", headers=headers)
-    print(response.text)
+
+    # API kérés küldése
+    response = requests.get(f"https://api.coinbase.com{request_path}", headers=headers)
+
+    print(response.status_code,response.text)
 
 def Usdc_sender(recipient, amount, key_name, key_secret, name):
     request_method = "POST"
@@ -59,8 +61,8 @@ def Usdc_sender(recipient, amount, key_name, key_secret, name):
     # JWT generálás
     jwt_payload = {
         'iss': 'cdp',
-        'nbf': int(time()),
-        'exp': int(time()) + 120,
+        'nbf': int(time.time()),
+        'exp': int(time.time()) + 120,
         'sub': key_name,
         'uri': request_method + " " + url + request_path
     }
@@ -126,8 +128,8 @@ def Eurc_sender(recipient, amount, key_name, key_secret, name):
     # JWT generálás
     jwt_payload = {
         'iss': 'cdp',
-        'nbf': int(time()),
-        'exp': int(time()) + 120,
+        'nbf': int(time.time()),
+        'exp': int(time.time()) + 120,
         'sub': key_name,
         'uri': request_method + " " + url + request_path
     }
@@ -188,6 +190,7 @@ def Eurc_sender(recipient, amount, key_name, key_secret, name):
 def send_from_wallets(wallets, key_name, key_secret, name):
     log = {}
     key_secret = key_secret.replace('\\n', '\n')
+
     get_account_uuid(key_name,key_secret)
 
     for wallet in wallets.split("\r\n"):
@@ -197,8 +200,6 @@ def send_from_wallets(wallets, key_name, key_secret, name):
             pubkey = Keypair.from_base58_string(base58_string).pubkey()
             recipient = pubkey
 
-
-            print(pubkey)
             print(recipient)
             print(key_name)
             print(key_secret)
