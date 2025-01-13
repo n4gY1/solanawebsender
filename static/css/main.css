@@ -61,7 +61,7 @@ body {
     text-transform:none !important;
 }
 ._textarea:focus {
-    background-color:black;
+    background-color:#111 !important;
 
 }
 ._btn {

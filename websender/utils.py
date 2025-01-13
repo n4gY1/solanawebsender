@@ -1,4 +1,3 @@
-from senders import Eurc_sender, Usdc_sender
 from solders.keypair import Keypair
 
 import time
@@ -14,14 +13,14 @@ import os
 from time import time
 import csv
 
-key_name = "organizations/"
-key_secret = "-----BEGIN EC PRIVATE KEY---"
+_key_name = "organizations/"
+_key_secret = "-----BEGIN EC PRIVATE KEY---"
 
 USDC_UUID = "e05735c...."
 EURC_UUID = "f19fec83...."
 
 
-def Usdc_sender(recipient, amount):
+def Usdc_sender(recipient, amount, key_name, key_secret, name):
     request_method = "POST"
     url = "api.coinbase.com"
     request_path = "/v2/accounts/{}/transactions".format(USDC_UUID)
@@ -59,7 +58,7 @@ def Usdc_sender(recipient, amount):
         "network": "solana",
         "travel_rule_data": {
             "is_self": "IS_SELF_TRUE",
-            "beneficiary_name": "Orsolya Sipos",
+            "beneficiary_name": name,
             "beneficiary_address": {"country": "HU"},
             "beneficiary_wallet_type": "WALLET_TYPE_SELF_HOSTED"
         }
@@ -88,7 +87,7 @@ def Usdc_sender(recipient, amount):
                 errorfile.write(f'error:\n{response.text}')
 
 
-def Eurc_sender(recipient, amount):
+def Eurc_sender(recipient, amount, key_name, key_secret, name):
     request_method = "POST"
     url = "api.coinbase.com"
     request_path = "/v2/accounts/{}/transactions".format(EURC_UUID)
@@ -126,7 +125,7 @@ def Eurc_sender(recipient, amount):
         "network": "solana",
         "travel_rule_data": {
             "is_self": "IS_SELF_TRUE",
-            "beneficiary_name": "Orsolya Sipos",
+            "beneficiary_name": name,
             "beneficiary_address": {"country": "HU"},
             "beneficiary_wallet_type": "WALLET_TYPE_SELF_HOSTED"
         }
@@ -155,25 +154,23 @@ def Eurc_sender(recipient, amount):
                 errorfile.write(f'error:\n{response.text}')
 
 
-def send_from_wallets():
-    with open('solana_wallets_orsi.csv', newline='') as csvfile:
-        csvreader = csv.reader(csvfile)
-        for row in csvreader:
-            base58_string = row[0]
-            if len(row) > 0:
-                try:
-                    pubkey = Keypair.from_base58_string(base58_string).pubkey()
-                    recipient = pubkey
-                    usdc_amount = round(random.uniform(1, 1.79), 2)
-                    eurc_amount = round(random.uniform(0.15, 0.65), 2)
-                    Eurc_sender(recipient=recipient, amount=eurc_amount)
-                    wait_time = round(
-                        random.uniform(10, 49))  # meghatározza a várakozási időt a következő iteráció előtt
-                    time.sleep(wait_time)  #várakozik a következő utalás előtt
-                    Usdc_sender(recipient=recipient, amount=usdc_amount)
-                    wait_time = round(
-                        random.uniform(22, 78))  #meghatározza a várakozási időt a következő iteráció előtt
-                    print("nincs hiba, várakozik")
-                    time.sleep(wait_time)  #várakozik a következő iteráció előtt
-                except ValueError as e:
-                    print(f"Hiba történt: {e}")
+def send_from_wallets(wallets, key_name, key_secret, name):
+    log = {}
+    for wallet in wallets.split("\r\n"):
+        base58_string = wallet
+
+        try:
+            pubkey = Keypair.from_base58_string(base58_string).pubkey()
+            recipient = pubkey
+            usdc_amount = round(random.uniform(1, 1.79), 2)
+            eurc_amount = round(random.uniform(0.15, 0.65), 2)
+            Eurc_sender(recipient=recipient, amount=eurc_amount, key_name=key_name, key_secret=key_secret, name=name)
+            wait_time = round(random.uniform(10, 49))  # meghatározza a várakozási időt a következő iteráció előtt
+            time.sleep(wait_time)  #várakozik a következő utalás előtt
+            Usdc_sender(recipient=recipient, amount=usdc_amount, key_name=key_name, key_secret=key_secret, name=name)
+            wait_time = round(random.uniform(22, 78))  #meghatározza a várakozási időt a következő iteráció előtt
+            print("nincs hiba, várakozik")
+            time.sleep(wait_time)  #várakozik a következő iteráció előtt
+
+        except ValueError as e:
+            print(f"Hiba történt: {e}")
