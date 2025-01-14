@@ -1,5 +1,12 @@
 {% extends 'base/base.html' %}
 {% block content %}
-
-
+<div class="_card">
+    <p>{{logs}}</p>
+    <hr>
+    <h2 style="font-size:1.5rem">
+    {% for log in logs %}
+    {{log.fee}};{{log.transaction_id}};{{log.destination_address}};{{log.when_create}};{{log.amount}}<br>
+    {% endfor %}
+    </h2>
+</div>
 {% endblock content %}

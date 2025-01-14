@@ -15,7 +15,7 @@ def home_view(request):
 
 def sender_view(request):
     template = "websender/sender.html"
-    context = {}
+    logs = []
     if request.method == "POST":
         print(request.POST)
         wallets = request.POST.get("wallets")
@@ -24,6 +24,10 @@ def sender_view(request):
         key_secret = request.POST.get("key_secret")
 
         if key_name and key_secret and name:
-            send_from_wallets(wallets, key_name=key_name, key_secret=key_secret, name=name)
+            logs = send_from_wallets(wallets, key_name=key_name, key_secret=key_secret, name=name)
+            print("[+] finished log", logs)
+    context = {
+        "logs": logs
+    }
 
     return render(request, template, context)
