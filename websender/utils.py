@@ -1,19 +1,8 @@
-import base64
-import time
-
 import jwt
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
-
 from solders.keypair import Keypair
-
 import random
-
 import requests
-import json
-
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import ec
-
 import time
 import secrets
 import http.client
@@ -21,12 +10,6 @@ import json
 import os
 
 import csv
-
-_key_name = "organizations/"
-_key_secret = "-----BEGIN EC PRIVATE KEY---"
-
-USDC_UUID = "e05735c...."
-EURC_UUID = "f19fec83...."
 
 
 def get_account_uuid(key_name, key_secret, currency):
@@ -52,8 +35,6 @@ def get_account_uuid(key_name, key_secret, currency):
         headers={'kid': key_name, 'nonce': secrets.token_hex()},
     )
 
-    uri = f"{request_method} {request_host}{request_path}"
-
     conn = http.client.HTTPSConnection(request_host)
     headers = {
         'Authorization': f"Bearer {jwt_token}",
@@ -66,79 +47,9 @@ def get_account_uuid(key_name, key_secret, currency):
     json_data = json.loads(data.decode("utf-8"))
     for wallet in json_data["accounts"]:
         if wallet["currency"] == currency:
-            print(wallet)
+            # print(wallet)
             return wallet["uuid"]
     return None
-
-
-"""
-def usdc_sender(recipient, amount, key_name, key_secret, name, wallett_uuid):
-    request_method = "POST"
-    url = "api.coinbase.com"
-    request_path = "/v2/accounts/{}/transactions".format(wallett_uuid)
-
-    # JWT generálás
-    jwt_payload = {
-        'iss': 'cdp',
-        'nbf': int(time.time()),
-        'exp': int(time.time()) + 120,
-        'sub': key_name,
-        'uri': request_method + " " + url + request_path
-    }
-
-    # Generáljunk egy nonce-t
-    nonce = os.urandom(16).hex()
-
-    # Generáljuk a JWT-t
-    jwt_token = jwt.encode(jwt_payload, key_secret, algorithm="ES256", headers={
-        "kid": key_name,
-        "nonce": nonce
-    })
-
-    # Fejlécek
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {jwt_token}"
-    }
-
-    # Kérés törzse
-    body = {
-        "type": "send",
-        "to": str(recipient),
-        "amount": str(amount),
-        "currency": "USDC",
-        "network": "solana",
-        "travel_rule_data": {
-            "is_self": "IS_SELF_TRUE",
-            "beneficiary_name": name,
-            "beneficiary_address": {"country": "HU"},
-            "beneficiary_wallet_type": "WALLET_TYPE_SELF_HOSTED"
-        }
-    }
-
-    # Kérés küldése
-    response = requests.post(f"https://api.coinbase.com/v2/accounts/{USDC_UUID}/transactions", headers=headers,
-                             data=json.dumps(body))
-
-    # Válasz kezelése
-    if response.status_code == 200:
-        resp = response.json()
-        transaction_id = resp['data']['id']
-        destination_address = resp['data']['to']['address']
-        when_create = resp['data']['created_at']
-        amount = resp['data']['network']['transaction_amount']['amount']
-        fee = resp['data']['network']['transaction_fee']['amount']
-        with open('txlogs.csv', mode='a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([transaction_id, destination_address, when_create, amount, fee])
-    else:
-        with open('txlogs.csv', mode='a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(f"Error: {response.status_code}")
-            with open(f'errlog_{recipient}.txt', 'w') as errorfile:
-                errorfile.write(f'error:\n{response.text}')
-
-"""
 
 
 def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, currency):
@@ -197,7 +108,7 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
         when_create = resp['data']['created_at']
         amount = resp['data']['network']['transaction_amount']['amount']
         fee = resp['data']['network']['transaction_fee']['amount']
-        print(fee)
+        print("[+] success:", fee, currency, recipient)
 
         return {
             "fee": fee,
@@ -208,11 +119,14 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
         }
 
     else:
-        with open('txlogs.csv', mode='a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(f"Error: {response.status_code}")
-            with open(f'errlog_{recipient}.txt', 'w') as errorfile:
-                errorfile.write(f'error:\n{response.text}')
+        print("[-] Connection error", response.status_code, "recipient:", recipient, currency)
+        return {
+            "fee": "-1",
+            "transaction_id": "error",
+            "destination_address": recipient,
+            "when_create": "none",
+            "amount": amount
+        }
 
 
 def send_from_wallets(wallets, key_name, key_secret, name):
@@ -238,29 +152,26 @@ def send_from_wallets(wallets, key_name, key_secret, name):
             #print(name)
 
             usdc_amount = round(random.uniform(1, 1.20), 2)
-            eurc_amount = round(random.uniform(0.10, 0.25), 2)
+            eurc_amount = round(random.uniform(0.10, 0.22), 2)
 
             logger_eurc = coinbase_sender(recipient=recipient, amount=eurc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=eurc_uuid, currency="EURC")
+            time.sleep(0.8)
+            log.append(logger_eurc)
+            if logger_eurc.get("fee") != "0":
+                print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", recipient)
+                return log
 
             logger_usdc = coinbase_sender(recipient=recipient, amount=usdc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=usdc_uuid, currency="USDC")
-
-            log.append(logger_eurc)
+            time.sleep(1)
             log.append(logger_usdc)
-            if logger_eurc.get("fee") != "0" or logger_usdc.get("fee") != "0":
-                print("!", logger_usdc.get("fee"), logger_usdc.get("fee"))
+            if logger_usdc.get("fee") != "0":
+                print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", recipient)
                 return log
 
-            #wait_time = round(random.uniform(10, 49))  # meghatározza a várakozási időt a következő iteráció előtt
-            #time.sleep(wait_time)  #várakozik a következő utalás előtt
-
-            #Usdc_sender(recipient=recipient, amount=usdc_amount, key_name=key_name, key_secret=key_secret, name=name)
-            #wait_time = round(random.uniform(22, 78))  #meghatározza a várakozási időt a következő iteráció előtt
-
-            #time.sleep(wait_time)  #várakozik a következő iteráció előtt
         except Exception as e:
             print("[!] ERROR", str(e))
     return log
