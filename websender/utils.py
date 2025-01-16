@@ -151,13 +151,13 @@ def send_from_wallets(wallets, key_name, key_secret, name):
             #print(key_secret)
             #print(name)
 
-            usdc_amount = round(random.uniform(1, 1.20), 2)
-            eurc_amount = round(random.uniform(0.10, 0.22), 2)
+            usdc_amount = round(random.uniform(1, 1.15), 2)
+            eurc_amount = round(random.uniform(0.10, 0.18), 2)
 
             logger_eurc = coinbase_sender(recipient=recipient, amount=eurc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=eurc_uuid, currency="EURC")
-            time.sleep(0.8)
+            time.sleep(0.3)
             log.append(logger_eurc)
             if logger_eurc.get("fee") != "0":
                 print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", recipient)
@@ -166,7 +166,7 @@ def send_from_wallets(wallets, key_name, key_secret, name):
             logger_usdc = coinbase_sender(recipient=recipient, amount=usdc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=usdc_uuid, currency="USDC")
-            time.sleep(1)
+            time.sleep(0.3)
             log.append(logger_usdc)
             if logger_usdc.get("fee") != "0":
                 print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", recipient)
