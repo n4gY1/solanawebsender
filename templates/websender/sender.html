@@ -3,12 +3,10 @@
 <div class="_card">
 
     <hr>
-    <h2 style="font-size:1.5rem">
-    <hr>
-    send {{logs.count}} wallets
-    <hr>
+    <h2 style="font-size:1.3rem">
+
     {% for log in logs %}
-    {{log.fee}};{{log.transaction_id}};{{log.destination_address}};{{log.when_create}};{{log.amount}}<br>
+    {{log.fee}};{{log.transaction_id}};{{log.destination_address}};{{log.when_created}};{{log.amount}}<br>
     {% endfor %}
     </h2>
 </div>

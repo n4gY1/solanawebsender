@@ -1,3 +1,5 @@
+import datetime
+
 import jwt
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from solders.keypair import Keypair
@@ -10,6 +12,8 @@ import json
 import os
 
 import csv
+
+from websender.models import SolanaLog
 
 
 def get_account_uuid(key_name, key_secret, currency):
@@ -105,7 +109,7 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
         resp = response.json()
         transaction_id = resp['data']['id']
         destination_address = resp['data']['to']['address']
-        when_create = resp['data']['created_at']
+        when_created = resp['data']['created_at']
         amount = resp['data']['network']['transaction_amount']['amount']
         fee = resp['data']['network']['transaction_fee']['amount']
         print("[+] success:", fee, currency, recipient)
@@ -114,7 +118,7 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
             "fee": fee,
             "transaction_id": transaction_id,
             "destination_address": destination_address,
-            "when_create": when_create,
+            "when_created": when_created,
             "amount": amount
         }
 
@@ -122,14 +126,14 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
         print("[-] Connection error", response.status_code, "recipient:", recipient, currency)
         return {
             "fee": "-1",
-            "transaction_id": "error",
-            "destination_address": recipient,
-            "when_create": "none",
+            "transaction_id": f"connection_error_{response.status_code}",
+            "destination_address": currency + " " + recipient,
+            "when_created": datetime.datetime.now(),
             "amount": amount
         }
 
 
-def send_from_wallets(wallets, key_name, key_secret, name):
+def send_from_wallets(wallets, key_name, key_secret, name, ip):
     log = []
     key_secret = key_secret.replace('\\n', '\n')
 
@@ -154,24 +158,56 @@ def send_from_wallets(wallets, key_name, key_secret, name):
             usdc_amount = round(random.uniform(1, 1.15), 2)
             eurc_amount = round(random.uniform(0.10, 0.18), 2)
 
+            # ------------------------ USDC ---------------------
             logger_eurc = coinbase_sender(recipient=recipient, amount=eurc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=eurc_uuid, currency="EURC")
             time.sleep(0.3)
             log.append(logger_eurc)
+            SolanaLog.objects.create(
+                fee=logger_eurc["fee"],
+                transaction_id=logger_eurc["transaction_id"],
+                destination_address=logger_eurc["destination_address"],
+                when_created=logger_eurc["when_created"],
+                amount=logger_eurc["amount"],
+                ip=ip
+            )
             if logger_eurc.get("fee") != "0":
                 print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", recipient)
                 return log
 
+
+
+
+            #------------------------ USDC ---------------------
             logger_usdc = coinbase_sender(recipient=recipient, amount=usdc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=usdc_uuid, currency="USDC")
             time.sleep(0.3)
             log.append(logger_usdc)
+            SolanaLog.objects.create(
+                fee = logger_usdc["fee"],
+                transaction_id = logger_usdc["transaction_id"],
+                destination_address = logger_usdc["destination_address"],
+                when_created = logger_usdc["when_created"],
+                amount = logger_usdc["amount"],
+                ip = ip
+            )
+
             if logger_usdc.get("fee") != "0":
                 print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", recipient)
                 return log
 
+
+
+
         except Exception as e:
             print("[!] ERROR", str(e))
+            SolanaLog.objects.create(
+                fee = "-1",
+                transaction_id = "ERROR BEFORE TRY SEND",
+                destination_address = str(e),
+                when_created = datetime.datetime.now(),
+                amount = ""
+            )
     return log

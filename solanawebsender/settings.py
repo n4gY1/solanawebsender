@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
+from django.conf.global_settings import CSRF_TRUSTED_ORIGINS
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,8 +27,8 @@ SECRET_KEY = 'django-insecure-+v6-gr@^6ht^3kao2#&2i)*-60yq$--rk!n6%&7!j&_3^nir3k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
-
+ALLOWED_HOSTS = ["","127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1","https://ngrok.com"]
 
 # Application definition
 
@@ -110,7 +112,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
