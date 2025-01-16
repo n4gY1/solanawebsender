@@ -1,2 +1,0 @@
-1;connection_error_500;USDC sdfjkdsfjdfjks394djfkdjflksjdfs;2024.05.30 18:37:56;1.58
-Error when start send: keybub not ready
