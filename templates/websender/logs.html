@@ -8,10 +8,12 @@
         <thead>
             <tr>
               <th scope="col">fee</th>
+              <th scope="col">currency</th>
               <th scope="col">transaction id</th>
               <th scope="col">destination address</th>
               <th scope="col">when_created</th>
               <th scope="col">amount</th>
+
               <th scope="col">ip</th>
             </tr>
         </thead>
@@ -19,6 +21,7 @@
         {% for log in logs %}
             <tr>
                 <td>{{log.fee}}</td>
+                <td>{{log.currency}}</td>
                 <td>{{log.transaction_id}}</td>
                 <td>{{log.destination_address}}</td>
                 <td>{{log.when_created}}</td>

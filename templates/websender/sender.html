@@ -3,10 +3,11 @@
 <div class="_card">
 
     <hr>
+    <h4>Record number {{logs.count}}</h4>
     <h2 style="font-size:1.3rem">
 
     {% for log in logs %}
-    {{log.fee}};{{log.transaction_id}};{{log.destination_address}};{{log.when_created}};{{log.amount}}<br>
+    {{log.fee}};{{log.currency}};{{log.transaction_id}};{{log.destination_address}};{{log.when_created}};{{log.amount}}<br>
     {% endfor %}
     </h2>
 </div>

@@ -119,7 +119,8 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
             "transaction_id": transaction_id,
             "destination_address": destination_address,
             "when_created": when_created,
-            "amount": amount
+            "amount": amount,
+            "currency":currency
         }
 
     else:
@@ -129,7 +130,8 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
             "transaction_id": f"connection_error_{response.status_code}",
             "destination_address": currency + " " + recipient,
             "when_created": datetime.datetime.now(),
-            "amount": amount
+            "amount": amount,
+            "currency":currency
         }
 
 
@@ -162,7 +164,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
             logger_eurc = coinbase_sender(recipient=recipient, amount=eurc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=eurc_uuid, currency="EURC")
-            time.sleep(0.3)
+            time.sleep(0.2)
             log.append(logger_eurc)
             if logger_eurc.get("fee") != "0":
                 print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", recipient)
@@ -173,7 +175,8 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
                 destination_address=logger_eurc["destination_address"],
                 when_created=logger_eurc["when_created"],
                 amount=logger_eurc["amount"],
-                ip=ip
+                ip=ip,
+                currency="EURC"
             )
 
 
@@ -184,7 +187,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
             logger_usdc = coinbase_sender(recipient=recipient, amount=usdc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=usdc_uuid, currency="USDC")
-            time.sleep(0.3)
+            time.sleep(0.2)
             log.append(logger_usdc)
             if logger_usdc.get("fee") != "0":
                 print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", recipient)
@@ -195,7 +198,8 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
                 destination_address = logger_usdc["destination_address"],
                 when_created = logger_usdc["when_created"],
                 amount = logger_usdc["amount"],
-                ip = ip
+                ip = ip,
+                currency="USDC"
             )
 
 
@@ -207,9 +211,10 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
             print("[!] ERROR", str(e))
             SolanaLog.objects.create(
                 fee = "-1",
-                transaction_id = "ERROR BEFORE TRY SEND",
-                destination_address = str(e),
+                transaction_id = str(e),
+                destination_address = wallet,
                 when_created = datetime.datetime.now(),
-                amount = ""
+                amount = "",
+                currency = "ERROR BEFORE SEND"
             )
     return log
