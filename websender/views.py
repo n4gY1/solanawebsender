@@ -43,10 +43,12 @@ def sender_view(request):
     return render(request, template, context)
 
 def logs_view(request):
+    ip = get_client_ip(request)
     template = "websender/logs.html"
-    obj = SolanaLog.objects.all()
+    obj = SolanaLog.objects.all().order_by("-when_created")
     context = {
-        "logs":obj
+        "logs":obj,
+        "ip":ip
     }
 
     return render(request,template,context)

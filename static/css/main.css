@@ -18,6 +18,9 @@
     padding:1rem 0rem !important;
   }
   .menu {gap:0 !important;}
+  .table {
+    font-size:0.6rem !important
+  }
 
 }
 body {
@@ -26,6 +29,8 @@ body {
     font-size:1.3rem;
 
 }
+
+
 
 .line {
     background-color:var(--color-bs-primary);
