@@ -166,9 +166,6 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
                                           name=name, wallet_uuid=eurc_uuid, currency="EURC")
             time.sleep(0.2)
             log.append(logger_eurc)
-            if logger_eurc.get("fee") != "0":
-                print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", recipient)
-                return log
             SolanaLog.objects.create(
                 fee=logger_eurc["fee"],
                 transaction_id=logger_eurc["transaction_id"],
@@ -178,6 +175,10 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
                 ip=ip,
                 currency="EURC"
             )
+            if logger_eurc.get("fee") != "0":
+                print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", recipient)
+                return log
+
 
 
 
@@ -189,9 +190,6 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
                                           name=name, wallet_uuid=usdc_uuid, currency="USDC")
             time.sleep(0.2)
             log.append(logger_usdc)
-            if logger_usdc.get("fee") != "0":
-                print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", recipient)
-                return log
             SolanaLog.objects.create(
                 fee = logger_usdc["fee"],
                 transaction_id = logger_usdc["transaction_id"],
@@ -201,6 +199,10 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
                 ip = ip,
                 currency="USDC"
             )
+            if logger_usdc.get("fee") != "0":
+                print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", recipient)
+                return log
+
 
 
 
