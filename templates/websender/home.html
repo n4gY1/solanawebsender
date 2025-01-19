@@ -5,25 +5,25 @@
     {% csrf_token %}
     <div class="_card">
         <small >Key name</small>
-        <textarea rows="3" name="key_name" id="key_name" class="_textarea form-control my-2" ></textarea>
+        <textarea rows="3" name="key_name" id="key_name" class="_textarea form-control my-2" >{{solana_user.key_name}}</textarea>
     </div>
 
     <div class="_card">
         <small >key secret</small>
-        <textarea rows="3" name="key_secret" id="key_secret" class="_textarea form-control my-2" ></textarea>
+        <textarea rows="3" name="key_secret" id="key_secret" class="_textarea form-control my-2" >{{solana_user.key_secret}}</textarea>
     </div>
 
     <div class="row">
         <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 col-xs-12">
             <div class="_card">
-                <small >Wallets key pair</small>
-                <textarea rows="20" name="wallets" id="wallets" class="_textarea form-control my-2" ></textarea>
+                <small >Wallets</small>
+                <textarea rows="20" name="wallets" id="wallets" class="_textarea form-control my-2" >{{solana_user.wallets}}</textarea>
             </div>
         </div>
 
         <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-xs-12">
             <small >Receiver name</small>
-            <input type="text" id="name" name="name" class="form-control _textarea my-2" />
+            <input type="text" id="name" name="name" class="form-control _textarea my-2" value="{{solana_user.receiver_name}}" />
             <button type="submit" class="btn _btn" >SEND</button>
         </div>
     </div>

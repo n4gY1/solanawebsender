@@ -19,7 +19,11 @@
   }
   .menu {gap:0 !important;}
   .table {
-    font-size:0.4rem !important
+    font-size:0.3rem !important;
+  }
+
+  ._container {
+    padding:1rem !important;
   }
 
 }
@@ -30,11 +34,25 @@ body {
 
 }
 
+._container {
+    padding:3rem;
+}
+
 table {
     font-size:1rem !important;
 }
 
 
+
+.logout {
+    position:absolute;
+    top:10px;
+    right:10px;
+    z-index:100;
+    background-color:var(--color-bs-dark);
+    padding:0.5rem 0.7rem;
+
+}
 
 .line {
     background-color:var(--color-bs-primary);
@@ -73,6 +91,7 @@ table {
     background-color:#111 !important;
 
 }
+
 ._btn {
     background-color:var(--color-bs-primary);
     border-radius:0px;

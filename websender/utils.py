@@ -135,7 +135,7 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
         }
 
 
-def send_from_wallets(wallets, key_name, key_secret, name, ip):
+def send_from_wallets(wallets, key_name, key_secret, name, ip,user):
     log = []
     key_secret = key_secret.replace('\\n', '\n')
 
@@ -146,11 +146,11 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
         return 0
 
     for wallet in wallets.split("\r\n"):
-        base58_string = wallet
+        #base58_string = wallet
 
         try:
-            pubkey = Keypair.from_base58_string(base58_string).pubkey()
-            recipient = pubkey
+            #pubkey = Keypair.from_base58_string(base58_string).pubkey()
+            #recipient = pubkey
 
             #print(recipient)
             #print(key_name)
@@ -161,12 +161,13 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
             eurc_amount = round(random.uniform(0.10, 0.18), 2)
 
             # ------------------------ USDC ---------------------
-            logger_eurc = coinbase_sender(recipient=recipient, amount=eurc_amount, key_name=key_name,
+            logger_eurc = coinbase_sender(recipient=wallet, amount=eurc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=eurc_uuid, currency="EURC")
             time.sleep(0.2)
             log.append(logger_eurc)
             SolanaLog.objects.create(
+                user=user,
                 fee=logger_eurc["fee"],
                 transaction_id=logger_eurc["transaction_id"],
                 destination_address=logger_eurc["destination_address"],
@@ -176,7 +177,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
                 currency="EURC"
             )
             if logger_eurc.get("fee") != "0":
-                print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", recipient)
+                print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", wallet)
                 return log
 
 
@@ -185,12 +186,13 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
 
 
             #------------------------ USDC ---------------------
-            logger_usdc = coinbase_sender(recipient=recipient, amount=usdc_amount, key_name=key_name,
+            logger_usdc = coinbase_sender(recipient=wallet, amount=usdc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=usdc_uuid, currency="USDC")
             time.sleep(0.2)
             log.append(logger_usdc)
             SolanaLog.objects.create(
+                user=user,
                 fee = logger_usdc["fee"],
                 transaction_id = logger_usdc["transaction_id"],
                 destination_address = logger_usdc["destination_address"],
@@ -200,7 +202,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
                 currency="USDC"
             )
             if logger_usdc.get("fee") != "0":
-                print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", recipient)
+                print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", wallet)
                 return log
 
 
@@ -212,6 +214,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip):
         except Exception as e:
             print("[!] ERROR", str(e))
             SolanaLog.objects.create(
+                user=user,
                 fee = "-1",
                 transaction_id = str(e),
                 destination_address = wallet,

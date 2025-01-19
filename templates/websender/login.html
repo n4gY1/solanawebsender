@@ -1,0 +1,27 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container" style="max-width:600px">
+
+
+<form action="{% url 'login' %}" method="POST" autocomplete="off">
+    {% csrf_token %}
+    {% if error %}
+    <h2 class="text-center text-warning">{{error}}</h2>
+    {% endif %}
+    <div class="_card">
+        <small >username</small>
+        <input name="username" id="username" type="text" class="_textarea form-control my-2" autocomplete="off" ></input>
+    </div>
+
+    <div class="_card">
+        <small >username</small>
+        <input name="password" id="password" type="password" class="_textarea form-control my-2" autocomplete="off" ></input>
+    </div>
+
+
+    <button type="submit" class="btn _btn" >LOGIN</button>
+
+</form>
+
+</div>
+{% endblock content %}

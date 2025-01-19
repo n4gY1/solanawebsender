@@ -1,9 +1,16 @@
 <div class="line">:::::::SOLANA WEB SENDER:::::::</div>
 <div class="menu">
-    <a href="{% url 'home' %}" class="menu_item">HOME</a>
+    <a href="{% url 'home' %}" class="menu_item">SEND</a>
     <a href="{% url 'logs' %}" class="menu_item">LOGS</a>
-    <a href="" class="menu_item">EXIT</a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'user' %}" class="menu_item">{{user}}</a>
+    {% else %}
+    <a href="{% url 'login' %}" class="menu_item">LOGIN</a>
+    {% endif %}
 </div>
+{% if user.is_authenticated %}
+<a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right logout"></i></a>
+{% endif %}
 <div class="line" style="font-size:1rem">
     Wake up, sex, lunch, send crypto and repeat
 </div>
