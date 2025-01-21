@@ -146,26 +146,17 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip,user):
         return 0
 
     for wallet in wallets.split("\r\n"):
-        #base58_string = wallet
-
         try:
-            #pubkey = Keypair.from_base58_string(base58_string).pubkey()
-            #recipient = pubkey
-
-            #print(recipient)
-            #print(key_name)
-            #print(key_secret)
-            #print(name)
-
             usdc_amount = round(random.uniform(1, 1.15), 2)
             eurc_amount = round(random.uniform(0.10, 0.18), 2)
 
-            # ------------------------ USDC ---------------------
+            # ------------------------ EURC ---------------------
+
             logger_eurc = coinbase_sender(recipient=wallet, amount=eurc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=eurc_uuid, currency="EURC")
-            time.sleep(0.2)
-            log.append(logger_eurc)
+            time.sleep(2)
+            #log.append(logger_eurc)
             SolanaLog.objects.create(
                 user=user,
                 fee=logger_eurc["fee"],
@@ -181,16 +172,12 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip,user):
                 return log
 
 
-
-
-
-
             #------------------------ USDC ---------------------
             logger_usdc = coinbase_sender(recipient=wallet, amount=usdc_amount, key_name=key_name,
                                           key_secret=key_secret,
                                           name=name, wallet_uuid=usdc_uuid, currency="USDC")
-            time.sleep(0.2)
-            log.append(logger_usdc)
+            time.sleep(2)
+            #log.append(logger_usdc)
             SolanaLog.objects.create(
                 user=user,
                 fee = logger_usdc["fee"],
@@ -204,12 +191,6 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip,user):
             if logger_usdc.get("fee") != "0":
                 print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", wallet)
                 return log
-
-
-
-
-
-
 
         except Exception as e:
             print("[!] ERROR", str(e))

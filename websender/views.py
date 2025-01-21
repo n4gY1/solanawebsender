@@ -1,4 +1,4 @@
-
+import threading
 
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
@@ -48,13 +48,16 @@ def sender_view(request):
         ip = get_client_ip(request)
 
         if key_name and key_secret and name:
-            logs = send_from_wallets(wallets, key_name=key_name, key_secret=key_secret, name=name,ip=ip,user=sol_user)
-            print("[+] finished log")
+            thread = threading.Thread(target=send_from_wallets,args=(wallets, key_name, key_secret,name,ip,sol_user))
+            thread.start()
+            #logs = send_from_wallets(wallets, key_name=key_name, key_secret=key_secret, name=name,ip=ip,user=sol_user)
+
     context = {
         "logs": logs
     }
+    return redirect("logs")
 
-    return render(request, template, context)
+    #return render(request, template, context)
 
 @login_required(login_url="login")
 def logs_view(request):
