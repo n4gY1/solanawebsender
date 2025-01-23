@@ -19,6 +19,7 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+
 @login_required(login_url="login")
 # Create your views here.
 def home_view(request):
@@ -26,12 +27,13 @@ def home_view(request):
 
     solana_user = SolanaUser.objects.get(user=user)
     template = "websender/home.html"
-    if solana_user.key_name == "" or solana_user.key_secret == "" or solana_user.wallets == "" or solana_user.receiver_name == "" :
+    if solana_user.key_name == "" or solana_user.key_secret == "" or solana_user.wallets == "" or solana_user.receiver_name == "":
         return redirect("user")
     context = {
-        "solana_user":solana_user
+        "solana_user": solana_user
     }
     return render(request, template, context)
+
 
 @login_required(login_url="login")
 def sender_view(request):
@@ -46,9 +48,18 @@ def sender_view(request):
         name = request.POST.get("name")
         key_secret = request.POST.get("key_secret")
         ip = get_client_ip(request)
+        send_usdc = False
+        send_eurc = False
+        if "usdc" in request.POST:
+            send_usdc = True
+        if "eurc" in request.POST:
+            send_eurc = True
+
+
 
         if key_name and key_secret and name:
-            thread = threading.Thread(target=send_from_wallets,args=(wallets, key_name, key_secret,name,ip,sol_user))
+            thread = threading.Thread(target=send_from_wallets,
+                                      args=(wallets, key_name, key_secret, name, ip, sol_user, send_usdc, send_eurc))
             thread.start()
             #logs = send_from_wallets(wallets, key_name=key_name, key_secret=key_secret, name=name,ip=ip,user=sol_user)
 
@@ -59,6 +70,7 @@ def sender_view(request):
 
     #return render(request, template, context)
 
+
 @login_required(login_url="login")
 def logs_view(request):
     ip = get_client_ip(request)
@@ -67,57 +79,54 @@ def logs_view(request):
     template = "websender/logs.html"
     logs = SolanaLog.objects.filter(user=solana_user).order_by("-when_created")
     context = {
-        "logs":logs,
-        "ip":ip
+        "logs": logs,
+        "ip": ip
     }
 
-    return render(request,template,context)
+    return render(request, template, context)
 
 
 def login_view(request):
     template = "websender/login.html"
-    context ={}
+    context = {}
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
-        print(username,password)
-        user = authenticate(username=username,password=password)
+        print(username, password)
+        user = authenticate(username=username, password=password)
         print(user)
         if user is not None:
-            login(request,user)
+            login(request, user)
 
             return redirect('home')
         else:
             context = {
-                "error":"not valid username/password"
+                "error": "not valid username/password"
             }
 
+    return render(request, template, context)
 
-    return render(request,template,context)
 
 @login_required(login_url="login")
 def user_view(request):
-
-
     template = "websender/user.html"
     sol_user = SolanaUser.objects.get(user=request.user)
     sol_sum = get_solana_sum(wallets=sol_user.wallets)
     form = SolanaUserForm(instance=sol_user)
 
     if request.method == "POST":
-        form = SolanaUserForm(request.POST,instance=sol_user)
+        form = SolanaUserForm(request.POST, instance=sol_user)
         if form.is_valid():
             form.save()
 
-
             return redirect("home")
 
-    context ={
-        "form":form,
-        "sol_sum":sol_sum
+    context = {
+        "form": form,
+        "sol_sum": sol_sum
     }
 
-    return render(request,template,context)
+    return render(request, template, context)
 
 
 @login_required(login_url="login")

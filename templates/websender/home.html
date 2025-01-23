@@ -3,6 +3,29 @@
 
 <form action="{% url 'send' %}" method="POST">
     {% csrf_token %}
+
+    <div class="_card justify-content-center d-flex">
+        <div class="row">
+            <div class="col-6">
+                <div class="form-check">
+                     <input class="form-check-input" type="checkbox" id="usdc" checked name="usdc">
+                    <label class="form-check-label" for="usdc">
+                        USDC
+                    </label>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-check">
+
+                    <input class="form-check-input" type="checkbox" id="eurc" checked name="eurc">
+                    <label class="form-check-label" for="eurc">
+                        EURC
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="_card">
         <small >Key name</small>
         <textarea rows="3" name="key_name" id="key_name" class="_textarea form-control my-2" >{{solana_user.key_name}}</textarea>
