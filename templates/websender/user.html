@@ -1,21 +1,21 @@
 {% extends 'base/base.html' %}
 {% block content %}
-<hr>
+
 <h2 class="text-center">profile settings</h2>
 <p class="text-center">add requiered informations</p>
-<hr>
+
 {% if error %}
 <h2 class="text-center text-warning">{{error}}</h2>
 {% endif %}
 
 <h1 class="text-center">{{sol_sum}} SOL</h1>
+<hr>
 <form action="" method="POST">
     {% csrf_token %}
     <div class="_card">
         {{form}}
          <button type="submit" class="btn _btn mt-2" >SAVE</button>
     </div>
-
 
 </form>
 
