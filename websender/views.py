@@ -3,6 +3,7 @@ import threading
 
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from django.shortcuts import render, redirect
 
@@ -80,9 +81,9 @@ def logs_view(request):
     now = datetime.datetime.now()
     yesterday = now - datetime.timedelta(hours=24)
     last_month = now - datetime.timedelta(days=30)
-    yesterday_logs_free = SolanaLog.objects.filter(user=solana_user,when_created__gte=yesterday,fee=0).count()
+    yesterday_logs_free = SolanaLog.objects.filter(user=solana_user, when_created__gte=yesterday,fee__in=["0","-1"]).count()
     yesterday_logs_all = SolanaLog.objects.filter(user=solana_user,when_created__gte=yesterday).count()
-    last_month_logs_free = SolanaLog.objects.filter(user=solana_user,when_created__gte=last_month,fee=0).count()
+    last_month_logs_free = SolanaLog.objects.filter(user=solana_user,when_created__gte=last_month,fee__in=["0","-1"]).count()
     last_month_logs_all = SolanaLog.objects.filter(user=solana_user,when_created__gte=last_month).count()
 
 
