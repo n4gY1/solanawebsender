@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import render, redirect
 
+
 from websender.forms import SolanaUserForm
 from websender.get_sol_sum import get_solana_sum
 from websender.models import SolanaLog, SolanaUser
@@ -76,12 +77,24 @@ def sender_view(request):
 def logs_view(request):
     ip = get_client_ip(request)
     solana_user = SolanaUser.objects.get(user=request.user)
+    now = datetime.datetime.now()
+    yesterday = now - datetime.timedelta(hours=24)
+    last_month = now - datetime.timedelta(days=30)
+    yesterday_logs_free = SolanaLog.objects.filter(user=solana_user,when_created__gte=yesterday,fee=0).count()
+    yesterday_logs_all = SolanaLog.objects.filter(user=solana_user,when_created__gte=yesterday).count()
+    last_month_logs_free = SolanaLog.objects.filter(user=solana_user,when_created__gte=last_month,fee=0).count()
+    last_month_logs_all = SolanaLog.objects.filter(user=solana_user,when_created__gte=last_month).count()
+
 
     template = "websender/logs.html"
     logs = SolanaLog.objects.filter(user=solana_user).order_by("-when_created")
     context = {
         "logs": logs,
-        "ip": ip
+        "ip": ip,
+        "yesterday_logs_free":yesterday_logs_free,
+        "yesterday_logs_all":yesterday_logs_all,
+        "last_month_logs_free":last_month_logs_free,
+        "last_month_logs_all":last_month_logs_all,
     }
 
     return render(request, template, context)

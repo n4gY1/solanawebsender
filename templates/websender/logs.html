@@ -4,6 +4,12 @@
 
     <h3 class="text-center">YOUR IP: {{ip}}</h3>
     <p class="text-center">new version send in the background task. refresh the logs page and see the magic</p>
+    <p class="text-center">
+        Last 24h (free/all): {{yesterday_logs_free}} / {{yesterday_logs_all}}<br/>
+        Last 30 day (free / all ) : {{last_month_logs_free}} / {{last_month_logs_all}}
+    </p>
+
+
     <table class="table table-dark text-break w-100">
         <thead>
             <tr>
