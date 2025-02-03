@@ -168,7 +168,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip,user,send_usdc,sen
                     ip=ip,
                     currency="EURC"
                 )
-                if logger_eurc.get("fee") != "0" or logger_eurc.get("fee") != "-1":
+                if logger_eurc.get("fee") != "0" and logger_eurc.get("fee") != "-1":
                     print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", wallet)
                     return log
 
@@ -190,7 +190,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip,user,send_usdc,sen
                     ip = ip,
                     currency="USDC"
                 )
-                if logger_usdc.get("fee") != "0" or logger_usdc.get("fee") != "-1":
+                if logger_usdc.get("fee") != "0" and logger_usdc.get("fee") != "-1":
                     print("[!] FEE IS NOT FREE", "USDC:", logger_usdc.get("fee"), "To:", wallet)
                     return log
 
