@@ -26,7 +26,7 @@
         <tbody>
         {% for log in logs %}
             <tr>
-                <td>{{log.fee}}</td>
+                <td class="{% if log.fee == '-2' %} bg-warning text-dark {% endif %}">{{log.fee}}</td>
                 <td>{{log.currency}}</td>
                 <td>{{log.transaction_id}}</td>
                 <td>{{log.destination_address}}</td>

@@ -125,6 +125,17 @@ def coinbase_sender(recipient, amount, key_name, key_secret, name, wallet_uuid, 
 
     else:
         print("[-] Connection error", response.status_code, "recipient:", recipient, currency)
+        # ha 400-as a hiba, valszeg nincs fedezett, ezért kilépünk.
+        # ezért a fee -2, ez miatt kilép
+        if response.status_code == "400":
+            return {
+                "fee": "-2",
+                "transaction_id": f"connection_error_{response.status_code}",
+                "destination_address": currency + " " + recipient,
+                "when_created": datetime.datetime.now(),
+                "amount": amount,
+                "currency": currency
+            }
         return {
             "fee": "-1",
             "transaction_id": f"connection_error_{response.status_code}",
@@ -169,7 +180,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip,user,send_usdc,sen
                     currency="EURC"
                 )
                 if logger_eurc.get("fee") != "0" and logger_eurc.get("fee") != "-1":
-                    print("[!] FEE IS NOT FREE", "EURC:", logger_eurc.get("fee"), "To:", wallet)
+
                     return log
 
 
