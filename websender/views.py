@@ -3,7 +3,7 @@ import threading
 
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+
 
 from django.shortcuts import render, redirect
 
@@ -24,7 +24,6 @@ def get_client_ip(request):
 
 
 @login_required(login_url="login")
-# Create your views here.
 def home_view(request):
     user = request.user
 
@@ -88,7 +87,7 @@ def logs_view(request):
 
 
     template = "websender/logs.html"
-    logs = SolanaLog.objects.filter(user=solana_user).order_by("-when_created")
+    logs = SolanaLog.objects.filter(user=solana_user).order_by("-when_created")[:100]
     context = {
         "logs": logs,
         "ip": ip,

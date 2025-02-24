@@ -159,7 +159,7 @@ def send_from_wallets(wallets, key_name, key_secret, name, ip,user,send_usdc,sen
     for wallet in wallets.split("\r\n"):
         try:
             usdc_amount = round(random.uniform(1, 1.15), 2)
-            eurc_amount = round(random.uniform(0.10, 0.18), 2)
+            eurc_amount = round(random.uniform(0.10, 0.15), 2)
             print(send_usdc,send_eurc)
 
             # ------------------------ EURC ---------------------
