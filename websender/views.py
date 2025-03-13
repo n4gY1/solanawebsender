@@ -79,7 +79,7 @@ def logs_view(request):
     solana_user = SolanaUser.objects.get(user=request.user)
     now = datetime.datetime.now()
     yesterday = now - datetime.timedelta(hours=24)
-    last_month = now - datetime.timedelta(days=30)
+    last_month = now - datetime.timedelta(days=31)
     yesterday_logs_free = SolanaLog.objects.filter(user=solana_user, when_created__gte=yesterday,fee__in=["0","-1"]).count()
     yesterday_logs_all = SolanaLog.objects.filter(user=solana_user,when_created__gte=yesterday).count()
     last_month_logs_free = SolanaLog.objects.filter(user=solana_user,when_created__gte=last_month,fee__in=["0","-1"]).count()
